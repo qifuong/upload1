@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        input[type="file"] {
+            margin: 20px 0;
+        }
+        .link {
+            margin-top: 20px;
+            color: blue;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Upload File</h1>
+        <p>Chọn file để upload:</p>
+        <input type="file" id="fileInput" />
+        <button id="uploadButton">Upload</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const cloudName = "dlmaclqnq"; // Thay YOUR_CLOUD_NAME bằng tên Cloudinary của bạn
+        const uploadPreset = "yisutv"; // Tạo "upload preset" trên Cloudinary và thay ở đây
+
+        document.getElementById("uploadButton").addEventListener("click", async () => {
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert("Vui lòng chọn file để upload.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", uploadPreset);
+
+            try {
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+                    method: "POST",
+                    body: formData,
+                });
+                const data = await response.json();
+
+                const resultDiv = document.getElementById("result");
+                if (data.secure_url) {
+                    resultDiv.innerHTML = `
+                        <p>Upload thành công! Link tải file:</p>
+                        <a class="link" href="${data.secure_url}" target="_blank">${data.secure_url}</a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = "<p>Upload thất bại. Vui lòng thử lại.</p>";
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+                document.getElementById("result").innerText = "Đã xảy ra lỗi khi upload file.";
+            }
+        });
+    </script>
+</body>
+</html>
